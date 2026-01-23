@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  googleId  String?  @unique
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+
+  cart          Cart?
+  orders        Order[]
+  adminAudits   AdminAuditLog[] @relation("AdminUserLogs")
+}
+
+model Category {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+
+  products ProductCategory[]
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  description String
+  price       Decimal       @db.Decimal(10, 2)
+  salePrice   Decimal?      @db.Decimal(10, 2)
+  stock       Int
+  status      ProductStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  images     ProductImage[]
+  categories ProductCategory[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  s3Key     String
+  sortOrder Int     @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@index([categoryId])
+}
+
+model Cart {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+}
+
+model CartItem {
+  id            String  @id @default(cuid())
+  cartId        String
+  productId     String
+  qty           Int
+  priceSnapshot Decimal @db.Decimal(10, 2)
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([cartId])
+  @@index([productId])
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  userId        String
+  status        OrderStatus   @default(PENDING)
+  subtotal      Decimal       @db.Decimal(10, 2)
+  shippingFee   Decimal       @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+  paymentMethod String
+  paymentStatus PaymentStatus @default(UNPAID)
+  addressJson   Json
+  createdAt     DateTime      @default(now())
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items OrderItem[]
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id            String  @id @default(cuid())
+  orderId       String
+  productId     String
+  titleSnapshot String
+  priceSnapshot Decimal @db.Decimal(10, 2)
+  qty           Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model AdminAuditLog {
+  id          String   @id @default(cuid())
+  adminUserId String
+  action      String
+  entity      String
+  entityId    String
+  metaJson    Json
+  createdAt   DateTime @default(now())
+
+  adminUser User @relation("AdminUserLogs", fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId])
+}
+
+model RefreshToken {
+  id              String   @id @default(cuid())
+  userId          String
+  jti             String   @unique
+  revokedAt       DateTime?
+  replacedByToken String?
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
