@@ -1,0 +1,80 @@
+Here’s a full, start‑from‑scratch runbook to get Diamond Electronics running locally.
+
+1) Prerequisites
+
+Node.js 18+ and npm
+Docker Desktop (for Postgres + Minio)
+2) Clone / enter repo
+
+cd "e:\Sameer\Code\Diamon Ecom Self hosted\diamond-electronics"
+3) Install dependencies (root + workspaces)
+
+npm install
+4) Create env files
+
+Server env:
+Copy .env.example → server/.env
+Update at minimum:
+DATABASE_URL
+JWT_ACCESS_SECRET
+JWT_REFRESH_SECRET
+GOOGLE_CLIENT_ID
+ADMIN_EMAIL_ALLOWLIST (comma‑separated admin emails)
+S3/Minio values if you plan to upload images
+Example (server/.env):
+
+PORT=4000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:5173
+
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/diamond_electronics?schema=public
+
+JWT_ACCESS_SECRET=dev_access_secret
+JWT_REFRESH_SECRET=dev_refresh_secret
+JWT_ACCESS_TTL=15m
+JWT_REFRESH_TTL=7d
+REFRESH_COOKIE_NAME=refreshToken
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+ADMIN_EMAIL_ALLOWLIST=you@example.com
+
+AWS_REGION=ap-south-1
+S3_BUCKET_NAME=diamond-electronics-dev
+S3_PUBLIC_BASE_URL=http://localhost:9000/diamond-electronics-dev
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=minioadmin
+AWS_S3_ENDPOINT=http://localhost:9000
+Web env:
+Copy .env.example → web/.env
+Set Google client id for the frontend:
+VITE_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+5) Start local services (Postgres + Minio)
+
+docker compose up -d
+6) Prisma setup
+
+cd server
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed
+7) Start the backend
+
+cd server
+npm run dev
+API runs on: http://localhost:4000
+8) Start the frontend
+
+cd web
+npm run dev
+Web runs on: http://localhost:5173
+9) Verify
+
+Health check: http://localhost:4000/api/health
+Web UI: http://localhost:5173
+Google OAuth setup (required for login)
+
+Create OAuth Client ID in Google Cloud Console
+Authorized JavaScript origin: http://localhost:5173
+Use the same client ID in:
+server/.env → GOOGLE_CLIENT_ID
+web/.env → VITE_GOOGLE_CLIENT_ID
+Add your email to ADMIN_EMAIL_ALLOWLIST to access admin routes.

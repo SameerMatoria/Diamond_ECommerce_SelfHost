@@ -7,7 +7,7 @@ import { apiFetch } from '../lib/api';
 function formatPrice(value) {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'INR'
+    currency: 'INR',
   }).format(Number(value));
 }
 
@@ -52,7 +52,7 @@ export default function OrderDetail() {
   return (
     <div className="space-y-6">
       <Link className="text-sm text-brand-300" to="/orders">
-        <- Back to orders
+        Back to orders
       </Link>
       <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -62,9 +62,7 @@ export default function OrderDetail() {
           </div>
           <div className="text-right">
             <p className="text-sm text-slate-400">Total</p>
-            <p className="text-lg font-semibold text-brand-200">
-              {formatPrice(order.total)}
-            </p>
+            <p className="text-lg font-semibold text-brand-200">{formatPrice(order.total)}</p>
           </div>
         </div>
         <div className="mt-6">

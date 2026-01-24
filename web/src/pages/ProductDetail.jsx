@@ -8,7 +8,7 @@ import { useToast } from '../components/ToastProvider';
 function formatPrice(value) {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'INR'
+    currency: 'INR',
   }).format(Number(value));
 }
 
@@ -48,7 +48,7 @@ export default function ProductDetail() {
       await apiFetch('/api/cart/items', {
         method: 'POST',
         token,
-        body: { productId: product.id, qty: 1 }
+        body: { productId: product.id, qty: 1 },
       });
       addToast('Added to cart', 'success');
     } catch (error) {
@@ -59,7 +59,7 @@ export default function ProductDetail() {
   return (
     <div className="space-y-6">
       <Link className="text-sm text-brand-300" to="/products">
-        <- Back to products
+        Back to products
       </Link>
       <div className="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
         <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">

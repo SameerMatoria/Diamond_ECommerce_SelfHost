@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -42,6 +41,7 @@ model User {
   cart          Cart?
   orders        Order[]
   adminAudits   AdminAuditLog[] @relation("AdminUserLogs")
+  refreshTokens RefreshToken[] // <-- added back relation
 }
 
 model Category {
@@ -71,11 +71,11 @@ model Product {
 }
 
 model ProductImage {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   productId String
   url       String
   s3Key     String
-  sortOrder Int     @default(0)
+  sortOrder Int    @default(0)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
@@ -163,12 +163,12 @@ model AdminAuditLog {
 }
 
 model RefreshToken {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   userId          String
-  jti             String   @unique
+  jti             String    @unique
   revokedAt       DateTime?
   replacedByToken String?
-  createdAt       DateTime @default(now())
+  createdAt       DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
