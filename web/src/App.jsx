@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Routes, Route, Link, Navigate } from 'react-router-dom';
 
 import { fetchHealth } from './store/healthSlice';
 import { loginWithGoogle, logout, refreshSession, selectIsAdmin } from './store/authSlice';
+import { useToast } from './components/ToastProvider';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -15,6 +16,7 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminProductForm from './pages/admin/AdminProductForm';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminUsers from './pages/admin/AdminUsers';
 
 function useGoogleButton(onCredential) {
   const buttonRef = useRef(null);
@@ -29,12 +31,12 @@ function useGoogleButton(onCredential) {
     if (existingScript) {
       window.google?.accounts.id.initialize({
         client_id: clientId,
-        callback: (response) => onCredential(response.credential)
+        callback: (response) => onCredential(response.credential),
       });
       window.google?.accounts.id.renderButton(buttonRef.current, {
         theme: 'filled_black',
         size: 'large',
-        width: 260
+        width: 260,
       });
       return undefined;
     }
@@ -47,12 +49,12 @@ function useGoogleButton(onCredential) {
     script.onload = () => {
       window.google?.accounts.id.initialize({
         client_id: clientId,
-        callback: (response) => onCredential(response.credential)
+        callback: (response) => onCredential(response.credential),
       });
       window.google?.accounts.id.renderButton(buttonRef.current, {
         theme: 'filled_black',
         size: 'large',
-        width: 260
+        width: 260,
       });
     };
     document.body.appendChild(script);
@@ -63,45 +65,6 @@ function useGoogleButton(onCredential) {
   }, [onCredential]);
 
   return buttonRef;
-}
-
-function AuthPanel() {
-  const dispatch = useDispatch();
-  const { user, status, error } = useSelector((state) => state.auth);
-  const buttonRef = useGoogleButton((credential) => {
-    dispatch(loginWithGoogle(credential));
-  });
-
-  return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-      <h3 className="text-lg font-medium">Account</h3>
-      {user ? (
-        <div className="mt-3 space-y-2 text-slate-300">
-          <p>
-            Signed in as <span className="text-white">{user.name}</span>
-          </p>
-          <p className="text-sm text-slate-400">Role: {user.role}</p>
-          <button
-            className="mt-2 rounded-full border border-slate-700 px-4 py-2 text-sm hover:border-slate-500"
-            onClick={() => dispatch(logout())}
-          >
-            Sign out
-          </button>
-        </div>
-      ) : (
-        <div className="mt-3 space-y-3">
-          <div ref={buttonRef} />
-          {status === 'loading' && <p className="text-sm text-slate-400">Signing in...</p>}
-          {error && <p className="text-sm text-rose-400">{error}</p>}
-          {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
-            <p className="text-sm text-amber-300">
-              Missing VITE_GOOGLE_CLIENT_ID in web/.env
-            </p>
-          )}
-        </div>
-      )}
-    </div>
-  );
 }
 
 function AdminGuard({ children }) {
@@ -126,11 +89,27 @@ function AdminGuard({ children }) {
 
 export default function App() {
   const dispatch = useDispatch();
+  const { addToast } = useToast();
+  const { user, status } = useSelector((state) => state.auth);
+  const [showSignUp, setShowSignUp] = useState(false);
+
+  const signUpButtonRef = useGoogleButton((credential) => {
+    dispatch(loginWithGoogle(credential));
+  });
 
   useEffect(() => {
     dispatch(fetchHealth());
     dispatch(refreshSession());
   }, [dispatch]);
+
+  const handleSignUp = () => {
+    if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+      addToast('Missing VITE_GOOGLE_CLIENT_ID in web/.env', 'error');
+      return;
+    }
+
+    setShowSignUp((prev) => !prev);
+  };
 
   return (
     <div className="min-h-screen">
@@ -153,75 +132,103 @@ export default function App() {
             <Link className="transition hover:text-white" to="/orders">
               Orders
             </Link>
-            <Link className="transition hover:text-white" to="/admin">
-              Admin
-            </Link>
+            {user ? (
+              <button
+                className="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-100 transition hover:border-slate-500"
+                onClick={() => dispatch(logout())}
+                type="button"
+              >
+                Sign out
+              </button>
+            ) : (
+              <button
+                className="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-100 transition hover:border-slate-500"
+                onClick={handleSignUp}
+                type="button"
+              >
+                {status === 'loading' ? 'Signing in...' : 'Sign up'}
+              </button>
+            )}
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <div className="grid gap-6 lg:grid-cols-[2.2fr,1fr]">
-          <div>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:slug" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/orders/:id" element={<OrderDetail />} />
-              <Route
-                path="/admin"
-                element={
-                  <AdminGuard>
-                    <AdminProducts />
-                  </AdminGuard>
-                }
-              />
-              <Route
-                path="/admin/products"
-                element={
-                  <AdminGuard>
-                    <AdminProducts />
-                  </AdminGuard>
-                }
-              />
-              <Route
-                path="/admin/products/new"
-                element={
-                  <AdminGuard>
-                    <AdminProductForm />
-                  </AdminGuard>
-                }
-              />
-              <Route
-                path="/admin/products/:id/edit"
-                element={
-                  <AdminGuard>
-                    <AdminProductForm />
-                  </AdminGuard>
-                }
-              />
-              <Route
-                path="/admin/categories"
-                element={
-                  <AdminGuard>
-                    <AdminCategories />
-                  </AdminGuard>
-                }
-              />
-              <Route
-                path="/admin/orders"
-                element={
-                  <AdminGuard>
-                    <AdminOrders />
-                  </AdminGuard>
-                }
-              />
-            </Routes>
+      {!user && showSignUp && (
+        <div className="border-b border-slate-800 bg-slate-950/90">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Sign up</p>
+              <p className="text-sm text-slate-300">Continue with Google to create an account.</p>
+            </div>
+            <div ref={signUpButtonRef} />
           </div>
-          <AuthPanel />
         </div>
+      )}
+      <main className="mx-auto max-w-6xl px-6 py-10">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:slug" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/:id" element={<OrderDetail />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminGuard>
+                <AdminProducts />
+              </AdminGuard>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <AdminGuard>
+                <AdminProducts />
+              </AdminGuard>
+            }
+          />
+          <Route
+            path="/admin/products/new"
+            element={
+              <AdminGuard>
+                <AdminProductForm />
+              </AdminGuard>
+            }
+          />
+          <Route
+            path="/admin/products/:id/edit"
+            element={
+              <AdminGuard>
+                <AdminProductForm />
+              </AdminGuard>
+            }
+          />
+          <Route
+            path="/admin/categories"
+            element={
+              <AdminGuard>
+                <AdminCategories />
+              </AdminGuard>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <AdminGuard>
+                <AdminOrders />
+              </AdminGuard>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminGuard>
+                <AdminUsers />
+              </AdminGuard>
+            }
+          />
+        </Routes>
       </main>
     </div>
   );
