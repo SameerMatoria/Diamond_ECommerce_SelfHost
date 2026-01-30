@@ -36,7 +36,7 @@ export default function ProductDetail() {
   }
 
   if (status === 'error' || !product) {
-    return <p className="text-sm text-rose-300">Product not found.</p>;
+    return <p className="text-sm text-rose-600">Product not found.</p>;
   }
 
   const handleAddToCart = async () => {
@@ -57,45 +57,44 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="space-y-6">
-      <Link className="text-sm text-brand-300" to="/products">
+    <div className="space-y-8">
+      <Link className="text-sm text-slate-600" to="/products">
         Back to products
       </Link>
-      <div className="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
-          <div className="flex h-72 items-center justify-center rounded-2xl bg-slate-950/80">
-            {product.images?.[0]?.url ? (
-              <img
-                className="h-full w-full rounded-2xl object-cover"
-                src={product.images[0].url}
-                alt={product.title}
-              />
-            ) : (
-              <span className="text-xs uppercase tracking-[0.4em] text-slate-600">No image</span>
-            )}
-          </div>
+      <div className="grid gap-8 lg:grid-cols-[1.2fr,1fr]">
+        <div className="border-t border-slate-200 pt-6">
+          {product.images?.[0]?.url ? (
+            <img
+              className="h-80 w-full object-cover"
+              src={product.images[0].url}
+              alt={product.title}
+            />
+          ) : (
+            <div className="flex h-80 items-center justify-center border border-dashed border-slate-200 text-xs uppercase tracking-[0.4em] text-slate-400">
+              No image
+            </div>
+          )}
         </div>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{product.slug}</p>
-            <h2 className="mt-2 text-3xl font-semibold text-white">{product.title}</h2>
+            <h2 className="mt-3 text-3xl font-semibold">{product.title}</h2>
           </div>
-          <p className="text-sm text-slate-300">{product.description}</p>
-          <p className="text-2xl font-semibold text-brand-200">
-            {formatPrice(product.salePrice || product.price)}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {(product.categories || []).map((entry) => (
-              <span
-                key={entry.category.id}
-                className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300"
-              >
-                {entry.category.name}
-              </span>
-            ))}
+          <p className="text-sm text-slate-600">{product.description}</p>
+          <div className="border-t border-slate-200 pt-4">
+            <p className="text-2xl font-semibold">
+              {formatPrice(product.salePrice || product.price)}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
+              {(product.categories || []).map((entry) => (
+                <span key={entry.category.id} className="border-b border-slate-300">
+                  {entry.category.name}
+                </span>
+              ))}
+            </div>
           </div>
           <button
-            className="rounded-full bg-brand-500 px-6 py-3 text-sm font-medium text-white"
+            className="rounded-full border border-slate-900 px-6 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-900 hover:text-white"
             onClick={handleAddToCart}
           >
             Add to cart

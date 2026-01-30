@@ -23,6 +23,7 @@ export default function AdminProducts() {
     categoryIds: [],
   });
   const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const loadProducts = () => {
     if (!token) return;
@@ -87,6 +88,25 @@ export default function AdminProducts() {
     }
   };
 
+  const handleDelete = async (product) => {
+    if (!token || deletingId) return;
+    const confirmed = window.confirm(`Delete "${product.title}"? This cannot be undone.`);
+    if (!confirmed) return;
+    setDeletingId(product.id);
+    try {
+      await apiFetch(`/api/admin/products/${product.id}`, {
+        method: 'DELETE',
+        token,
+      });
+      addToast('Product deleted', 'success');
+      loadProducts();
+    } catch (error) {
+      addToast(error.message, 'error');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -94,30 +114,30 @@ export default function AdminProducts() {
           <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Admin</p>
           <h2 className="text-2xl font-semibold">Products</h2>
         </div>
-        <div className="flex items-center gap-3">
-          <Link className="text-sm text-brand-300" to="/admin/categories">
+        <div className="flex items-center gap-3 text-sm text-slate-600">
+          <Link className="transition hover:text-slate-900" to="/admin/categories">
             Manage categories
           </Link>
-          <Link className="text-sm text-brand-300" to="/admin/orders">
+          <Link className="transition hover:text-slate-900" to="/admin/orders">
             Manage orders
           </Link>
-          <Link className="text-sm text-brand-300" to="/admin/users">
+          <Link className="transition hover:text-slate-900" to="/admin/users">
             Manage users
           </Link>
         </div>
       </div>
 
-      <section className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Create product</p>
-            <h3 className="text-xl font-semibold text-white">Add a new product</h3>
-            <p className="mt-2 text-sm text-slate-300">
+            <h3 className="text-xl font-semibold text-slate-900">Add a new product</h3>
+            <p className="mt-2 text-sm text-slate-600">
               Fill every field below. Titles and descriptions appear on storefront. Images are added
               after save.
             </p>
           </div>
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-xs text-slate-300">
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-600">
             <p className="uppercase tracking-[0.3em] text-slate-400">Tips</p>
             <p className="mt-2">Set status to ACTIVE to show on storefront.</p>
             <p className="mt-1">Use clear SKU-like titles for search.</p>
@@ -128,7 +148,7 @@ export default function AdminProducts() {
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Product title</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="Eg. 12V 2A Adapter"
               value={form.title}
               onChange={(event) => setForm({ ...form, title: event.target.value })}
@@ -138,7 +158,7 @@ export default function AdminProducts() {
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Slug (optional)</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="auto-generated if empty"
               value={form.slug}
               onChange={(event) => setForm({ ...form, slug: event.target.value })}
@@ -147,7 +167,7 @@ export default function AdminProducts() {
           <div className="space-y-2 md:col-span-2">
             <label className="text-xs uppercase text-slate-400">Description</label>
             <textarea
-              className="min-h-[140px] w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="min-h-[140px] w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="What is the product, specs, usage, warranty info, etc."
               value={form.description}
               onChange={(event) => setForm({ ...form, description: event.target.value })}
@@ -155,9 +175,9 @@ export default function AdminProducts() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs uppercase text-slate-400">Price (₹)</label>
+            <label className="text-xs uppercase text-slate-400">Price (INR)</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="e.g. 499"
               value={form.price}
               onChange={(event) => setForm({ ...form, price: event.target.value })}
@@ -167,7 +187,7 @@ export default function AdminProducts() {
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Sale price (optional)</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="e.g. 449"
               value={form.salePrice}
               onChange={(event) => setForm({ ...form, salePrice: event.target.value })}
@@ -176,7 +196,7 @@ export default function AdminProducts() {
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Stock quantity</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="e.g. 100"
               value={form.stock}
               onChange={(event) => setForm({ ...form, stock: event.target.value })}
@@ -186,7 +206,7 @@ export default function AdminProducts() {
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Status</label>
             <select
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               value={form.status}
               onChange={(event) => setForm({ ...form, status: event.target.value })}
             >
@@ -198,7 +218,7 @@ export default function AdminProducts() {
             <label className="text-xs uppercase text-slate-400">Categories</label>
             <select
               multiple
-              className="h-36 w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="h-36 w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               value={form.categoryIds}
               onChange={(event) => {
                 const options = Array.from(event.target.selectedOptions).map(
@@ -213,16 +233,16 @@ export default function AdminProducts() {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Add categories first in Manage categories, then select them here.
             </p>
           </div>
           <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               After saving, open the product to upload images.
             </p>
             <button
-              className="rounded-full bg-brand-500 px-6 py-3 text-sm font-medium text-white"
+              className="rounded-full border border-slate-900 px-6 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-900 hover:text-white"
               type="submit"
               disabled={creating}
             >
@@ -232,21 +252,21 @@ export default function AdminProducts() {
         </form>
       </section>
 
-      <section className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Catalog</p>
-            <h3 className="text-xl font-semibold text-white">All products</h3>
+            <h3 className="text-xl font-semibold text-slate-900">All products</h3>
           </div>
         </div>
 
-        {status === 'loading' && <p className="text-sm text-slate-400">Loading products...</p>}
-        {status === 'error' && <p className="text-sm text-rose-300">Unable to load products.</p>}
+        {status === 'loading' && <p className="text-sm text-slate-500">Loading products...</p>}
+        {status === 'error' && <p className="text-sm text-rose-600">Unable to load products.</p>}
 
         {status === 'success' && (
-          <div className="mt-4 overflow-hidden rounded-2xl border border-slate-800">
-            <table className="min-w-full divide-y divide-slate-800 text-sm">
-              <thead className="bg-slate-900/60 text-slate-400">
+          <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200">
+            <table className="min-w-full divide-y divide-slate-200 text-sm">
+              <thead className="bg-slate-100 text-slate-500">
                 <tr>
                   <th className="px-4 py-3 text-left">Title</th>
                   <th className="px-4 py-3 text-left">Status</th>
@@ -255,23 +275,33 @@ export default function AdminProducts() {
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 bg-slate-950/50">
+              <tbody className="divide-y divide-slate-200 bg-white">
                 {products.map((product) => (
                   <tr key={product.id}>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-white">{product.title}</div>
-                      <div className="text-xs text-slate-400">{product.slug}</div>
+                      <div className="font-medium text-slate-900">{product.title}</div>
+                      <div className="text-xs text-slate-500">{product.slug}</div>
                     </td>
-                    <td className="px-4 py-3 text-slate-300">{product.status}</td>
-                    <td className="px-4 py-3 text-slate-300">{product.stock}</td>
-                    <td className="px-4 py-3 text-slate-300">{product.price}</td>
+                    <td className="px-4 py-3 text-slate-600">{product.status}</td>
+                    <td className="px-4 py-3 text-slate-600">{product.stock}</td>
+                    <td className="px-4 py-3 text-slate-600">{product.price}</td>
                     <td className="px-4 py-3 text-right">
-                      <Link
-                        className="text-sm text-brand-300"
-                        to={`/admin/products/${product.id}/edit`}
-                      >
-                        Edit + images
-                      </Link>
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          className="text-sm text-slate-600 transition hover:text-slate-900"
+                          to={`/admin/products/${product.id}/edit`}
+                        >
+                          Edit + images
+                        </Link>
+                        <button
+                          className="text-sm text-rose-600 transition hover:text-rose-700"
+                          onClick={() => handleDelete(product)}
+                          type="button"
+                          disabled={deletingId === product.id}
+                        >
+                          {deletingId === product.id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

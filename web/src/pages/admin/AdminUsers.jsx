@@ -46,11 +46,11 @@ export default function AdminUsers() {
   };
 
   if (status === 'loading') {
-    return <p className="text-sm text-slate-400">Loading users...</p>;
+    return <p className="text-sm text-slate-500">Loading users...</p>;
   }
 
   if (status === 'error') {
-    return <p className="text-sm text-rose-300">Unable to load users.</p>;
+    return <p className="text-sm text-rose-600">Unable to load users.</p>;
   }
 
   return (
@@ -62,23 +62,24 @@ export default function AdminUsers() {
         </div>
         <div className="flex items-center gap-2">
           <input
-            className="rounded-full border border-slate-700 bg-slate-900/60 px-4 py-2 text-sm"
+            className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700"
             placeholder="Search users"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
           <button
-            className="rounded-full border border-slate-700 px-4 py-2 text-sm"
+            className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:border-slate-500 hover:text-slate-900"
             onClick={loadUsers}
+            type="button"
           >
             Search
           </button>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-800">
-        <table className="min-w-full divide-y divide-slate-800 text-sm">
-          <thead className="bg-slate-900/60 text-slate-400">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <table className="min-w-full divide-y divide-slate-200 text-sm">
+          <thead className="bg-slate-50 text-slate-500">
             <tr>
               <th className="px-4 py-3 text-left">Name</th>
               <th className="px-4 py-3 text-left">Email</th>
@@ -86,14 +87,14 @@ export default function AdminUsers() {
               <th className="px-4 py-3 text-left">Created</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800 bg-slate-950/50">
+          <tbody className="divide-y divide-slate-200 bg-white">
             {users.map((user) => (
               <tr key={user.id}>
-                <td className="px-4 py-3 text-slate-200">{user.name}</td>
-                <td className="px-4 py-3 text-slate-300">{user.email}</td>
+                <td className="px-4 py-3 text-slate-900">{user.name}</td>
+                <td className="px-4 py-3 text-slate-600">{user.email}</td>
                 <td className="px-4 py-3">
                   <select
-                    className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2"
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700"
                     value={user.role}
                     onChange={(event) => handleRoleChange(user.id, event.target.value)}
                   >
@@ -104,7 +105,7 @@ export default function AdminUsers() {
                     ))}
                   </select>
                 </td>
-                <td className="px-4 py-3 text-slate-400">
+                <td className="px-4 py-3 text-slate-500">
                   {new Date(user.createdAt).toLocaleDateString('en-IN')}
                 </td>
               </tr>

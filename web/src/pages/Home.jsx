@@ -3,6 +3,18 @@ import { Link } from 'react-router-dom';
 
 import { apiFetch } from '../lib/api';
 
+function formatPrice(value) {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+  }).format(Number(value));
+}
+
+function shortSpec(text) {
+  if (!text) return 'Precision-grade electronics components.';
+  return text.length > 80 ? `${text.slice(0, 80)}...` : text;
+}
+
 export default function Home() {
   const [categories, setCategories] = useState([]);
   const [status, setStatus] = useState('loading');
@@ -48,89 +60,81 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="space-y-10">
-      <section className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-8">
+    <div className="space-y-12">
+      <section className="space-y-6">
         <p className="text-xs uppercase tracking-[0.4em] text-slate-400">Diamond Electronics</p>
-        <h2 className="mt-4 text-4xl font-semibold text-white md:text-5xl">
-          Precision parts for bold builds.
+        <h2 className="max-w-4xl text-5xl font-semibold leading-tight md:text-6xl">
+          Components and tools for teams who ship hardware with precision.
         </h2>
-        <p className="mt-4 max-w-2xl text-slate-300">
-          Curated electronics, components, and tools for engineers, makers, and repair teams.
+        <p className="max-w-2xl text-base text-slate-600">
+          Curated electronics, verified lots, and fast dispatch for labs, workshops, and makers.
         </p>
-        <div className="mt-6 flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-4 pt-2">
           <Link
-            className="rounded-full bg-brand-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-brand-500/30"
+            className="rounded-full border border-slate-900 px-6 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-900 hover:text-white"
             to="/products"
           >
-            Browse catalog
+            Shop now
           </Link>
           <Link
-            className="rounded-full bg-brand-500 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-brand-500/30"
+            className="rounded-full border border-slate-200 px-6 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-400"
+            to="/support"
+          >
+            Talk to support
+          </Link>
+          <Link
+            className="rounded-full border border-slate-200 px-6 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-400"
             to="/admin"
           >
             Admin
           </Link>
-          <Link
-            className="rounded-full border border-slate-700 px-6 py-3 text-sm font-medium text-slate-200"
-            to="/orders"
-          >
-            View orders
-          </Link>
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 border-t border-slate-200 pt-8 md:grid-cols-3">
         {[
           { label: 'Ready stock', value: '2,000+ SKUs' },
           { label: 'Fast dispatch', value: 'Same-day on parts' },
           { label: 'Trusted by teams', value: '250+ workshops' },
         ].map((item) => (
-          <div key={item.label} className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
+          <div key={item.label} className="border-t border-slate-200 pt-4">
             <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{item.label}</p>
-            <p className="mt-2 text-2xl font-semibold text-white">{item.value}</p>
+            <p className="mt-2 text-2xl font-semibold">{item.value}</p>
           </div>
         ))}
       </section>
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold">Featured products</h3>
-          <Link className="text-sm text-brand-300" to="/products">
+          <h3 className="text-2xl font-semibold">Featured products</h3>
+          <Link className="text-sm text-slate-600" to="/products">
             View all
           </Link>
         </div>
         {productStatus === 'loading' && (
-          <p className="text-sm text-slate-400">Loading products...</p>
+          <p className="text-sm text-slate-500">Loading products...</p>
         )}
         {productStatus === 'error' && (
-          <p className="text-sm text-rose-300">Unable to load products right now.</p>
+          <p className="text-sm text-rose-500">Unable to load products right now.</p>
         )}
         {productStatus === 'success' && products.length === 0 && (
-          <p className="text-sm text-slate-400">No products available yet.</p>
+          <p className="text-sm text-slate-500">No products available yet.</p>
         )}
         {productStatus === 'success' && products.length > 0 && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => (
               <Link
                 key={product.id}
                 to={`/products/${product.slug}`}
-                className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-4 transition hover:border-brand-500"
+                className="group rounded-2xl border border-slate-200 p-5 transition hover:border-slate-400"
               >
-                <div className="flex h-36 items-center justify-center rounded-xl bg-slate-950/80 text-slate-500">
-                  {product.images?.[0]?.url ? (
-                    <img
-                      className="h-full w-full rounded-xl object-cover"
-                      src={product.images[0].url}
-                      alt={product.title}
-                    />
-                  ) : (
-                    <span className="text-xs uppercase tracking-[0.4em]">No image</span>
-                  )}
-                </div>
-                <h4 className="mt-4 text-lg font-semibold text-white group-hover:text-brand-200">
+                <h4 className="text-lg font-semibold group-hover:text-slate-700">
                   {product.title}
                 </h4>
-                <p className="mt-1 text-sm text-slate-400">{product.slug}</p>
+                <p className="mt-1 text-sm text-slate-500">{shortSpec(product.description)}</p>
+                <p className="mt-3 text-sm font-medium text-slate-900">
+                  {formatPrice(product.salePrice || product.price)}
+                </p>
               </Link>
             ))}
           </div>
@@ -139,25 +143,22 @@ export default function Home() {
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold">Top categories</h3>
-          <Link className="text-sm text-brand-300" to="/products">
+          <h3 className="text-2xl font-semibold">Top categories</h3>
+          <Link className="text-sm text-slate-600" to="/products">
             View all
           </Link>
         </div>
-        {status === 'loading' && <p className="text-sm text-slate-400">Loading categories...</p>}
+        {status === 'loading' && <p className="text-sm text-slate-500">Loading categories...</p>}
         {status === 'error' && (
-          <p className="text-sm text-rose-300">Unable to load categories right now.</p>
+          <p className="text-sm text-rose-500">Unable to load categories right now.</p>
         )}
         {status === 'success' && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {categories.map((category) => (
-              <div
-                key={category.id}
-                className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4"
-              >
+              <div key={category.id} className="border-t border-slate-200 pt-4">
                 <p className="text-sm uppercase tracking-[0.3em] text-slate-400">{category.slug}</p>
-                <h4 className="mt-2 text-lg font-semibold text-white">{category.name}</h4>
-                <p className="mt-2 text-xs text-slate-400">
+                <h4 className="mt-2 text-lg font-semibold">{category.name}</h4>
+                <p className="mt-2 text-xs text-slate-500">
                   {category._count?.products || 0} items
                 </p>
               </div>
@@ -166,12 +167,12 @@ export default function Home() {
         )}
       </section>
 
-      <section className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+      <section className="border-t border-slate-200 pt-8">
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Why Diamond</p>
-            <h3 className="mt-2 text-2xl font-semibold text-white">Built for precision teams</h3>
-            <p className="mt-3 text-sm text-slate-300">
+            <h3 className="mt-2 text-2xl font-semibold">Built for precision teams</h3>
+            <p className="mt-3 text-sm text-slate-600">
               We source verified components, test batches, and pack orders with care so your builds
               ship on time.
             </p>
@@ -183,10 +184,7 @@ export default function Home() {
               'Support for BOM sourcing',
               'Quality verified lots',
             ].map((item) => (
-              <div
-                key={item}
-                className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 text-sm text-slate-200"
-              >
+              <div key={item} className="border-t border-slate-200 pt-3 text-sm text-slate-600">
                 {item}
               </div>
             ))}

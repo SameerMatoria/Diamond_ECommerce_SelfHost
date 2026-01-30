@@ -22,12 +22,12 @@ export function ToastProvider({ children }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`rounded-xl border px-4 py-3 text-sm shadow-lg backdrop-blur ${
+            className={`rounded-xl border px-4 py-3 text-sm backdrop-blur ${
               toast.tone === 'error'
-                ? 'border-rose-500/60 bg-rose-500/20 text-rose-100'
+                ? 'border-rose-200 bg-rose-50 text-rose-800'
                 : toast.tone === 'success'
-                  ? 'border-emerald-400/60 bg-emerald-400/20 text-emerald-100'
-                  : 'border-slate-700/60 bg-slate-900/70 text-slate-100'
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                  : 'border-slate-200 bg-white text-slate-700'
             }`}
           >
             {toast.message}

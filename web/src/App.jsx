@@ -12,6 +12,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
+import Support from './pages/Support';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminProductForm from './pages/admin/AdminProductForm';
 import AdminCategories from './pages/admin/AdminCategories';
@@ -34,7 +35,7 @@ function useGoogleButton(onCredential) {
         callback: (response) => onCredential(response.credential),
       });
       window.google?.accounts.id.renderButton(buttonRef.current, {
-        theme: 'filled_black',
+        theme: 'outline',
         size: 'large',
         width: 260,
       });
@@ -52,7 +53,7 @@ function useGoogleButton(onCredential) {
         callback: (response) => onCredential(response.credential),
       });
       window.google?.accounts.id.renderButton(buttonRef.current, {
-        theme: 'filled_black',
+        theme: 'outline',
         size: 'large',
         width: 260,
       });
@@ -77,9 +78,9 @@ function AdminGuard({ children }) {
 
   if (!isAdmin) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6">
         <h2 className="text-2xl font-semibold">Admin Panel</h2>
-        <p className="mt-3 text-rose-300">Access denied. Admin role required.</p>
+        <p className="mt-3 text-rose-600">Access denied. Admin role required.</p>
       </div>
     );
   }
@@ -112,29 +113,32 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <div className="min-h-screen bg-white text-slate-900">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Diamond</p>
-            <h1 className="text-2xl font-semibold text-white">Electronics</h1>
+            <h1 className="text-2xl font-semibold">Electronics</h1>
           </div>
-          <nav className="flex flex-wrap items-center gap-4 text-sm text-slate-300">
-            <Link className="transition hover:text-white" to="/">
+          <nav className="flex flex-wrap items-center gap-6 text-sm text-slate-600">
+            <Link className="transition hover:text-slate-900" to="/">
               Home
             </Link>
-            <Link className="transition hover:text-white" to="/products">
-              Storefront
+            <Link className="transition hover:text-slate-900" to="/products">
+              Shop
             </Link>
-            <Link className="transition hover:text-white" to="/cart">
+            <Link className="transition hover:text-slate-900" to="/products?view=categories">
+              Categories
+            </Link>
+            <Link className="transition hover:text-slate-900" to="/support">
+              Support
+            </Link>
+            <Link className="transition hover:text-slate-900" to="/cart">
               Cart
-            </Link>
-            <Link className="transition hover:text-white" to="/orders">
-              Orders
             </Link>
             {user ? (
               <button
-                className="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-100 transition hover:border-slate-500"
+                className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:border-slate-500 hover:text-slate-900"
                 onClick={() => dispatch(logout())}
                 type="button"
               >
@@ -142,7 +146,7 @@ export default function App() {
               </button>
             ) : (
               <button
-                className="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-100 transition hover:border-slate-500"
+                className="rounded-full border border-slate-900 px-4 py-2 text-sm text-slate-900 transition hover:bg-slate-900 hover:text-white"
                 onClick={handleSignUp}
                 type="button"
               >
@@ -153,17 +157,17 @@ export default function App() {
         </div>
       </header>
       {!user && showSignUp && (
-        <div className="border-b border-slate-800 bg-slate-950/90">
+        <div className="border-b border-slate-200 bg-slate-50">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Sign up</p>
-              <p className="text-sm text-slate-300">Continue with Google to create an account.</p>
+              <p className="text-sm text-slate-600">Continue with Google to create an account.</p>
             </div>
             <div ref={signUpButtonRef} />
           </div>
         </div>
       )}
-      <main className="mx-auto max-w-6xl px-6 py-10">
+      <main className="mx-auto max-w-6xl px-6 py-12">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
@@ -172,6 +176,7 @@ export default function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetail />} />
+          <Route path="/support" element={<Support />} />
           <Route
             path="/admin"
             element={
@@ -230,6 +235,40 @@ export default function App() {
           />
         </Routes>
       </main>
+      <footer className="border-t border-slate-200 bg-white">
+        <div className="mx-auto grid max-w-6xl gap-6 px-6 py-10 md:grid-cols-[1.5fr,1fr,1fr]">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Diamond Electronics</p>
+            <p className="mt-3 text-sm text-slate-600">
+              A minimalist catalog for electronics, parts, and lab-ready components.
+            </p>
+          </div>
+          <div className="text-sm text-slate-600">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Navigate</p>
+            <div className="mt-3 space-y-2">
+              <Link className="block transition hover:text-slate-900" to="/products">
+                Shop
+              </Link>
+              <Link
+                className="block transition hover:text-slate-900"
+                to="/products?view=categories"
+              >
+                Categories
+              </Link>
+              <Link className="block transition hover:text-slate-900" to="/support">
+                Support
+              </Link>
+            </div>
+          </div>
+          <div className="text-sm text-slate-600">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Contact</p>
+            <div className="mt-3 space-y-2">
+              <p>support@diamondelectronics.in</p>
+              <p>Mon–Sat, 10:00–18:00 IST</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

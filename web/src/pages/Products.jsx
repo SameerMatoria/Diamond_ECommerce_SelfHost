@@ -6,8 +6,13 @@ import { apiFetch } from '../lib/api';
 function formatPrice(value) {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'INR'
+    currency: 'INR',
   }).format(Number(value));
+}
+
+function shortSpec(text) {
+  if (!text) return 'Precision-grade component, workshop-ready.';
+  return text.length > 80 ? `${text.slice(0, 80)}...` : text;
 }
 
 export default function Products() {
@@ -22,9 +27,9 @@ export default function Products() {
       search: searchParams.get('search') || '',
       category: searchParams.get('category') || '',
       minPrice: searchParams.get('minPrice') || '',
-      maxPrice: searchParams.get('maxPrice') || ''
+      maxPrice: searchParams.get('maxPrice') || '',
     }),
-    [searchParams]
+    [searchParams],
   );
 
   useEffect(() => {
@@ -65,15 +70,16 @@ export default function Products() {
   };
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Catalog</p>
-          <h2 className="text-3xl font-semibold">Electronics & components</h2>
-        </div>
-        <div className="flex gap-2">
+    <div className="space-y-10">
+      <header className="space-y-4">
+        <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Shop</p>
+        <h2 className="text-4xl font-semibold">Editorial catalog</h2>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 pt-6">
+          <p className="max-w-xl text-sm text-slate-600">
+            Browse components curated for clean builds, fast repairs, and reliable sourcing.
+          </p>
           <input
-            className="rounded-full border border-slate-700 bg-slate-900/60 px-4 py-2 text-sm text-white"
+            className="w-full max-w-xs border-b border-slate-300 bg-transparent px-1 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-900"
             placeholder="Search products"
             value={query.search}
             onChange={(event) => updateFilter('search', event.target.value)}
@@ -81,82 +87,72 @@ export default function Products() {
         </div>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[260px,1fr]">
-        <aside className="space-y-6">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">
-              Filters
-            </h3>
-            <div className="mt-4 space-y-4">
-              <div>
-                <label className="text-xs uppercase text-slate-500">Category</label>
-                <select
-                  className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-                  value={query.category}
-                  onChange={(event) => updateFilter('category', event.target.value)}
+      <div className="grid gap-10 lg:grid-cols-[240px,1fr]">
+        <aside className="space-y-8">
+          <div className="border-t border-slate-200 pt-4">
+            <h3 className="text-xs uppercase tracking-[0.3em] text-slate-400">Categories</h3>
+            <div className="mt-3 space-y-2 text-sm text-slate-600">
+              <button
+                className={`block text-left transition ${
+                  query.category ? 'text-slate-500' : 'text-slate-900'
+                }`}
+                onClick={() => updateFilter('category', '')}
+                type="button"
+              >
+                All
+              </button>
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  className={`block text-left transition ${
+                    query.category === category.slug ? 'text-slate-900' : 'text-slate-500'
+                  }`}
+                  onClick={() => updateFilter('category', category.slug)}
+                  type="button"
                 >
-                  <option value="">All</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.slug}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs uppercase text-slate-500">Min</label>
-                  <input
-                    className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-                    value={query.minPrice}
-                    onChange={(event) => updateFilter('minPrice', event.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs uppercase text-slate-500">Max</label>
-                  <input
-                    className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-                    value={query.maxPrice}
-                    onChange={(event) => updateFilter('maxPrice', event.target.value)}
-                  />
-                </div>
-              </div>
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="border-t border-slate-200 pt-4">
+            <h3 className="text-xs uppercase tracking-[0.3em] text-slate-400">Price</h3>
+            <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-slate-600">
+              <input
+                className="border-b border-slate-300 bg-transparent px-1 py-2 outline-none"
+                placeholder="Min"
+                value={query.minPrice}
+                onChange={(event) => updateFilter('minPrice', event.target.value)}
+              />
+              <input
+                className="border-b border-slate-300 bg-transparent px-1 py-2 outline-none"
+                placeholder="Max"
+                value={query.maxPrice}
+                onChange={(event) => updateFilter('maxPrice', event.target.value)}
+              />
             </div>
           </div>
         </aside>
 
-        <section className="space-y-4">
-          {status === 'loading' && <p className="text-sm text-slate-400">Loading products...</p>}
+        <section className="space-y-6">
+          {status === 'loading' && <p className="text-sm text-slate-500">Loading products...</p>}
           {status === 'error' && (
-            <p className="text-sm text-rose-300">{error || 'Unable to load products.'}</p>
+            <p className="text-sm text-rose-500">{error || 'Unable to load products.'}</p>
           )}
           {status === 'success' && products.length === 0 && (
-            <p className="text-sm text-slate-400">No products matched your filters.</p>
+            <p className="text-sm text-slate-500">No products matched your filters.</p>
           )}
           {status === 'success' && products.length > 0 && (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {products.map((product) => (
                 <Link
                   key={product.id}
                   to={`/products/${product.slug}`}
-                  className="group rounded-2xl border border-slate-800 bg-slate-900/50 p-4 transition hover:border-brand-500"
+                  className="rounded-2xl border border-slate-200 p-5 transition hover:border-slate-400"
                 >
-                  <div className="flex h-36 items-center justify-center rounded-xl bg-slate-950/80 text-slate-500">
-                    {product.images?.[0]?.url ? (
-                      <img
-                        className="h-full w-full rounded-xl object-cover"
-                        src={product.images[0].url}
-                        alt={product.title}
-                      />
-                    ) : (
-                      <span className="text-xs uppercase tracking-[0.4em]">No image</span>
-                    )}
-                  </div>
-                  <h3 className="mt-4 text-lg font-semibold text-white group-hover:text-brand-200">
-                    {product.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-slate-400">{product.slug}</p>
-                  <p className="mt-3 text-sm font-semibold text-brand-200">
+                  <h3 className="text-lg font-semibold">{product.title}</h3>
+                  <p className="mt-1 text-sm text-slate-500">{shortSpec(product.description)}</p>
+                  <p className="mt-3 text-sm font-medium text-slate-900">
                     {formatPrice(product.salePrice || product.price)}
                   </p>
                 </Link>

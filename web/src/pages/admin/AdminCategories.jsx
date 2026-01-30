@@ -28,7 +28,7 @@ export default function AdminCategories() {
       await apiFetch('/api/admin/categories', {
         method: 'POST',
         token,
-        body: { name, slug: slug || undefined }
+        body: { name, slug: slug || undefined },
       });
       setName('');
       setSlug('');
@@ -43,7 +43,7 @@ export default function AdminCategories() {
     try {
       await apiFetch(`/api/admin/categories/${categoryId}`, {
         method: 'DELETE',
-        token
+        token,
       });
       addToast('Category deleted', 'success');
       loadCategories();
@@ -53,7 +53,7 @@ export default function AdminCategories() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Admin</p>
         <h2 className="text-2xl font-semibold">Categories</h2>
@@ -61,19 +61,19 @@ export default function AdminCategories() {
 
       <form className="grid gap-4 md:grid-cols-3" onSubmit={handleCreate}>
         <input
-          className="rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-3"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-3"
           placeholder="Name"
           value={name}
           onChange={(event) => setName(event.target.value)}
           required
         />
         <input
-          className="rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-3"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-3"
           placeholder="Slug (optional)"
           value={slug}
           onChange={(event) => setSlug(event.target.value)}
         />
-        <button className="rounded-full bg-brand-500 px-5 py-3 text-sm font-medium text-white">
+        <button className="rounded-full border border-slate-900 px-5 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-900 hover:text-white">
           Add category
         </button>
       </form>
@@ -82,16 +82,13 @@ export default function AdminCategories() {
         {categories.map((category) => (
           <div
             key={category.id}
-            className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-3"
+            className="flex items-center justify-between border-t border-slate-200 pt-3"
           >
             <div>
-              <div className="text-white">{category.name}</div>
-              <div className="text-xs text-slate-400">{category.slug}</div>
+              <div className="text-slate-900">{category.name}</div>
+              <div className="text-xs text-slate-500">{category.slug}</div>
             </div>
-            <button
-              className="text-sm text-rose-300"
-              onClick={() => handleDelete(category.id)}
-            >
+            <button className="text-sm text-rose-500" onClick={() => handleDelete(category.id)}>
               Delete
             </button>
           </div>

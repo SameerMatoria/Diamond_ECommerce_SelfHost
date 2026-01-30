@@ -124,11 +124,11 @@ export default function AdminProductForm() {
   };
 
   if (status === 'error') {
-    return <p className="text-sm text-rose-300">Unable to load product.</p>;
+    return <p className="text-sm text-rose-500">Unable to load product.</p>;
   }
 
   if (status === 'loading') {
-    return <p className="text-sm text-slate-400">Loading product...</p>;
+    return <p className="text-sm text-slate-500">Loading product...</p>;
   }
 
   return (
@@ -138,22 +138,19 @@ export default function AdminProductForm() {
           <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Admin</p>
           <h2 className="text-2xl font-semibold">{isEdit ? 'Edit' : 'New'} product</h2>
         </div>
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-xs text-slate-300">
+        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-600">
           <p className="uppercase tracking-[0.3em] text-slate-400">Guide</p>
           <p className="mt-2">Make sure status is ACTIVE to show on storefront.</p>
           <p className="mt-1">Images can be uploaded after saving.</p>
         </div>
       </div>
 
-      <form
-        className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6"
-        onSubmit={handleSubmit}
-      >
+      <form className="rounded-3xl border border-slate-200 bg-white p-6" onSubmit={handleSubmit}>
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Product title</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="Eg. 12V 2A Adapter"
               value={form.title}
               onChange={(event) => setForm({ ...form, title: event.target.value })}
@@ -163,7 +160,7 @@ export default function AdminProductForm() {
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Slug (optional)</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="auto-generated if empty"
               value={form.slug}
               onChange={(event) => setForm({ ...form, slug: event.target.value })}
@@ -172,7 +169,7 @@ export default function AdminProductForm() {
           <div className="space-y-2 md:col-span-2">
             <label className="text-xs uppercase text-slate-400">Description</label>
             <textarea
-              className="min-h-[140px] w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="min-h-[140px] w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="Explain specs, usage, warranty, etc."
               value={form.description}
               onChange={(event) => setForm({ ...form, description: event.target.value })}
@@ -180,9 +177,9 @@ export default function AdminProductForm() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs uppercase text-slate-400">Price (₹)</label>
+            <label className="text-xs uppercase text-slate-400">Price (INR)</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="e.g. 499"
               value={form.price}
               onChange={(event) => setForm({ ...form, price: event.target.value })}
@@ -192,7 +189,7 @@ export default function AdminProductForm() {
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Sale price (optional)</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="e.g. 449"
               value={form.salePrice}
               onChange={(event) => setForm({ ...form, salePrice: event.target.value })}
@@ -201,7 +198,7 @@ export default function AdminProductForm() {
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Stock quantity</label>
             <input
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               placeholder="e.g. 100"
               value={form.stock}
               onChange={(event) => setForm({ ...form, stock: event.target.value })}
@@ -211,7 +208,7 @@ export default function AdminProductForm() {
           <div className="space-y-2">
             <label className="text-xs uppercase text-slate-400">Status</label>
             <select
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               value={form.status}
               onChange={(event) => setForm({ ...form, status: event.target.value })}
             >
@@ -223,7 +220,7 @@ export default function AdminProductForm() {
             <label className="text-xs uppercase text-slate-400">Categories</label>
             <select
               multiple
-              className="h-36 w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3"
+              className="h-36 w-full rounded-xl border border-slate-200 bg-white px-4 py-3"
               value={form.categoryIds}
               onChange={(event) => {
                 const options = Array.from(event.target.selectedOptions).map(
@@ -238,29 +235,29 @@ export default function AdminProductForm() {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-slate-400">Add categories first, then select them here.</p>
+            <p className="text-xs text-slate-500">Add categories first, then select them here.</p>
           </div>
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-slate-400">Save changes before uploading images.</p>
-          <button className="rounded-full bg-brand-500 px-6 py-3 text-sm font-medium text-white">
+          <p className="text-xs text-slate-500">Save changes before uploading images.</p>
+          <button className="rounded-full border border-slate-900 px-6 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-900 hover:text-white">
             Save product
           </button>
         </div>
       </form>
 
       {isEdit && (
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+        <section className="rounded-3xl border border-slate-200 bg-white p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Product images</p>
-              <h3 className="text-xl font-semibold text-white">Upload product photos</h3>
-              <p className="mt-2 text-sm text-slate-300">
+              <h3 className="text-xl font-semibold">Upload product photos</h3>
+              <p className="mt-2 text-sm text-slate-600">
                 Upload a clear product shot. The first image appears on listings.
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-xs text-slate-300">
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-600">
               <p className="uppercase tracking-[0.3em] text-slate-400">Requirements</p>
               <p className="mt-2">JPG/PNG, under 2MB.</p>
               <p className="mt-1">Use square images for best results.</p>
@@ -273,7 +270,7 @@ export default function AdminProductForm() {
               onChange={(event) => setImageFile(event.target.files?.[0] || null)}
             />
             <button
-              className="rounded-full border border-slate-700 px-4 py-2 text-sm"
+              className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:border-slate-500"
               onClick={handleUpload}
               type="button"
             >

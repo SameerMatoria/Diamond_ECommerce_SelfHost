@@ -20,8 +20,8 @@ const productSchema = {
     salePrice: z.coerce.number().positive().optional(),
     stock: z.coerce.number().int().min(0),
     status: z.enum(['DRAFT', 'ACTIVE']).default('DRAFT'),
-    categoryIds: z.array(z.string()).optional()
-  })
+    categoryIds: z.array(z.string()).optional(),
+  }),
 };
 
 const listSchema = {
@@ -29,8 +29,8 @@ const listSchema = {
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(50).default(20),
     status: z.enum(['DRAFT', 'ACTIVE']).optional(),
-    search: z.string().optional()
-  })
+    search: z.string().optional(),
+  }),
 };
 
 router.get('/products', validateRequest(listSchema), async (req, res, next) => {
@@ -45,7 +45,7 @@ router.get('/products', validateRequest(listSchema), async (req, res, next) => {
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } }
+        { description: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -54,13 +54,13 @@ router.get('/products', validateRequest(listSchema), async (req, res, next) => {
         where,
         include: {
           images: { orderBy: { sortOrder: 'asc' } },
-          categories: { include: { category: true } }
+          categories: { include: { category: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
       }),
-      prisma.product.count({ where })
+      prisma.product.count({ where }),
     ]);
 
     res.json({
@@ -68,7 +68,7 @@ router.get('/products', validateRequest(listSchema), async (req, res, next) => {
       page,
       limit,
       total,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     });
   } catch (error) {
     next(error);
@@ -81,8 +81,8 @@ router.get('/products/:id', async (req, res, next) => {
       where: { id: req.params.id },
       include: {
         images: { orderBy: { sortOrder: 'asc' } },
-        categories: { include: { category: true } }
-      }
+        categories: { include: { category: true } },
+      },
     });
 
     if (!product) {
@@ -115,8 +115,25 @@ router.put('/products/:id', validateRequest(productSchema), async (req, res, nex
 
 router.delete('/products/:id', async (req, res, next) => {
   try {
-    await prisma.product.delete({ where: { id: req.params.id } });
-    res.json({ status: 'ok' });
+    const productId = req.params.id;
+    const orderItemCount = await prisma.orderItem.count({
+      where: { productId },
+    });
+
+    if (orderItemCount > 0) {
+      return res.status(409).json({
+        error: 'Cannot delete product with existing orders. Archive it instead.',
+      });
+    }
+
+    await prisma.$transaction([
+      prisma.productImage.deleteMany({ where: { productId } }),
+      prisma.productCategory.deleteMany({ where: { productId } }),
+      prisma.cartItem.deleteMany({ where: { productId } }),
+      prisma.product.delete({ where: { id: productId } }),
+    ]);
+
+    return res.json({ status: 'ok' });
   } catch (error) {
     next(error);
   }
@@ -127,7 +144,7 @@ router.post('/products/:id/images', async (req, res, next) => {
     const schema = z.object({
       url: z.string().url(),
       s3Key: z.string().min(3),
-      sortOrder: z.number().int().min(0).default(0)
+      sortOrder: z.number().int().min(0).default(0),
     });
 
     const payload = schema.parse(req.body);
@@ -137,8 +154,8 @@ router.post('/products/:id/images', async (req, res, next) => {
         productId: req.params.id,
         url: payload.url,
         s3Key: payload.s3Key,
-        sortOrder: payload.sortOrder
-      }
+        sortOrder: payload.sortOrder,
+      },
     });
 
     res.status(201).json({ image });

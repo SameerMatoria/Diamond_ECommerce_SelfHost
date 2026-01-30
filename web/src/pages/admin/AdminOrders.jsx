@@ -10,7 +10,7 @@ const paymentOptions = ['UNPAID', 'PAID', 'REFUNDED'];
 function formatPrice(value) {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'INR'
+    currency: 'INR',
   }).format(Number(value));
 }
 
@@ -40,7 +40,7 @@ export default function AdminOrders() {
       await apiFetch(`/api/admin/orders/${orderId}/status`, {
         method: 'PUT',
         token,
-        body: { status: nextStatus }
+        body: { status: nextStatus },
       });
       addToast('Order status updated', 'success');
       loadOrders();
@@ -54,7 +54,7 @@ export default function AdminOrders() {
       await apiFetch(`/api/admin/orders/${orderId}/payment-status`, {
         method: 'PUT',
         token,
-        body: { paymentStatus: nextStatus }
+        body: { paymentStatus: nextStatus },
       });
       addToast('Payment status updated', 'success');
       loadOrders();
@@ -64,23 +64,23 @@ export default function AdminOrders() {
   };
 
   if (status === 'loading') {
-    return <p className="text-sm text-slate-400">Loading orders...</p>;
+    return <p className="text-sm text-slate-500">Loading orders...</p>;
   }
 
   if (status === 'error') {
-    return <p className="text-sm text-rose-300">Unable to load orders.</p>;
+    return <p className="text-sm text-rose-500">Unable to load orders.</p>;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Admin</p>
         <h2 className="text-2xl font-semibold">Orders</h2>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-800">
-        <table className="min-w-full divide-y divide-slate-800 text-sm">
-          <thead className="bg-slate-900/60 text-slate-400">
+      <div className="overflow-hidden rounded-2xl border border-slate-200">
+        <table className="min-w-full divide-y divide-slate-200 text-sm">
+          <thead className="bg-slate-100 text-slate-500">
             <tr>
               <th className="px-4 py-3 text-left">Order</th>
               <th className="px-4 py-3 text-left">Customer</th>
@@ -89,18 +89,18 @@ export default function AdminOrders() {
               <th className="px-4 py-3 text-left">Payment</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800 bg-slate-950/50">
+          <tbody className="divide-y divide-slate-200 bg-white">
             {orders.map((order) => (
               <tr key={order.id}>
                 <td className="px-4 py-3">
-                  <div className="font-medium text-white">#{order.id.slice(0, 8)}</div>
-                  <div className="text-xs text-slate-400">{order.createdAt}</div>
+                  <div className="font-medium text-slate-900">#{order.id.slice(0, 8)}</div>
+                  <div className="text-xs text-slate-500">{order.createdAt}</div>
                 </td>
-                <td className="px-4 py-3 text-slate-300">{order.user?.email}</td>
-                <td className="px-4 py-3 text-slate-300">{formatPrice(order.total)}</td>
+                <td className="px-4 py-3 text-slate-600">{order.user?.email}</td>
+                <td className="px-4 py-3 text-slate-600">{formatPrice(order.total)}</td>
                 <td className="px-4 py-3">
                   <select
-                    className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2"
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700"
                     value={order.status}
                     onChange={(event) => updateStatus(order.id, event.target.value)}
                   >
@@ -113,7 +113,7 @@ export default function AdminOrders() {
                 </td>
                 <td className="px-4 py-3">
                   <select
-                    className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2"
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700"
                     value={order.paymentStatus}
                     onChange={(event) => updatePayment(order.id, event.target.value)}
                   >
